@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  bbw-frontend-dev-func-v1:
+    container_name: bbw-frontend-dev-func-v4
+    restart: always
+    build:
+      context: ./businesstrips-wishlist-next-v8
+      dockerfile: Dockerfile
+    volumes:
+      - "./businesstrips-wishlist-next-v8:/app"
+    #  - "/app/node_modules"
+    ports:
+      - "3002:3000"
+
+  bbw-mariadb-dev:
+    image: mariadb
+    container_name: bbw-mariadb-dev
+    environment:
+      - MYSQL_ROOT_PASSWORD=bbw123
+      - MYSQL_DATABASE=demo
+    ports:
+      - 3306:3306
+    volumes:
+      - ./database:/var/lib/mysql
+
+  bbw-phpmyadmin:
+    depends_on:
+      - bbw-mariadb-dev
+    image: phpmyadmin:5.2.1
+    ports:
+      - 81:80
+    environment:
+      PMA_HOST: bbw-mariadb-dev
+
+  bbw-backend-dev:
+    container_name: bbw-backend-dev
+    restart: always
+    build:
+      context: ./SpringBootBusinessTripsv3
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    expose:
+      - "8080"
+    depends_on:
+      - bbw-mariadb-dev
